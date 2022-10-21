@@ -2,7 +2,8 @@ module.exports = function(router, database) {
 
   router.get('/properties', (req, res) => {
     database.getAllProperties(req.query, 20)
-    .then(properties => res.send({properties}))
+    .then(properties => {
+      res.send({properties})})
     .catch(e => {
       console.error(e);
       res.send(e)
@@ -16,7 +17,9 @@ module.exports = function(router, database) {
       return;
     }
     database.getAllReservations(userId)
-    .then(reservations => res.send({reservations}))
+    .then(reservations => {
+      res.send({reservations})
+    })
     .catch(e => {
       console.error(e);
       res.send(e)
