@@ -133,7 +133,6 @@ exports.getAllReservations = getAllReservations;
   if (options.minimum_price_per_night) {
     queryParams.push(`${Number(options.minimum_price_per_night)*100}`);
     queryString += `HAVING properties.cost_per_night >= $${queryParams.length} `;
-    console.log(queryParams)
   }
 
   if (options.maximum_price_per_night) {
@@ -152,6 +151,7 @@ exports.getAllReservations = getAllReservations;
   ORDER BY cost_per_night
   LIMIT $${queryParams.length};
   `;
+  console.log("QUERTSTRING", queryString)
 
   // 5
   // console.log(queryString, queryParams);
@@ -177,8 +177,31 @@ exports.getAllProperties = getAllProperties;
  * @return {Promise<{}>} A promise to the property.
  */
 const addProperty = function(property) {
-  const propertyId = Object.keys(properties).length + 1;
-  property.id = propertyId;
-  properties[propertyId] = property;
-  return Promise.resolve(property);
-}
+  const queryParams = [];
+  const propertyArr = Object.keys(property);
+  let queryString = `INSERT INTO properties ( `
+  for(let n = 0; n < Object.keys(property).length - 1; n++){
+    queryString += `${propertyArr[n]}, `
+  }
+  queryString += `${propertyArr[propertyArr.length - 1]})`
+  queryString += ` VALUES (`;
+  for(let n = 0; n < Object.keys(property).length - 1; n++){
+    queryParams.push(`${property[propertyArr[n]]}`)
+    queryString += ` $${queryParams.length},`
+  }
+  queryParams.push(`${property[propertyArr[propertyArr.length - 1]]}`)
+  queryString += ` $${queryParams.length}`
+  queryString += `);`
+  // console.log(queryString);
+  return pool
+  .query(queryString, queryParams)
+  .then((result) => {
+    return result.rows;
+  })
+  .catch((err) => {
+    console.log(err.message);
+  });
+};
+
+exports.addProperty = addProperty;
+
